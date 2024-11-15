@@ -4,66 +4,61 @@ import pandas as pd
 # Título do app
 st.title("Calculadora de Emissões Portuárias")
 
-# Seção de upload de arquivo
-st.sidebar.header("Upload de Arquivo")
-uploaded_file = st.sidebar.file_uploader("Faça upload da planilha (.xlsx)", type=["xlsx"])
+# Modelo de entrada e cálculo baseado na aba "2022"
+st.sidebar.header("Modelo de Entradas")
+st.sidebar.write("Entradas obrigatórias para cálculo:")
 
-if uploaded_file is not None:
-    # Carregar planilha
-    data = pd.ExcelFile(uploaded_file)
-    sheet_options = data.sheet_names
-    selected_sheet = st.sidebar.selectbox("Selecione a aba", sheet_options)
-    df = data.parse(selected_sheet)
-    st.write("Dados carregados da planilha:")
-    st.dataframe(df)
-else:
-    # Caso não haja upload, iniciar com um DataFrame vazio
-    df = pd.DataFrame(columns=[
-        "Nº ENTRADA", "NAVIO", "CARGA", "TEMPO ATRACADO (h)", 
-        "CONSUMO HFO (g)", "CONSUMO MGO/MDO (g)", "EMISSÕES (t)"
-    ])
-    st.write("Nenhuma planilha carregada. Insira dados manualmente.")
+# Definindo entradas conforme a planilha
+inputs = {
+    "input1": st.sidebar.text_input("Nº Entrada"),
+    "input2": st.sidebar.text_input("Navio"),
+    "input3": st.sidebar.selectbox("Tipo de Carga", ["GRANEL LÍQUIDO", "GRANEL SÓLIDO", "CARGA GERAL"]),
+    "input4": st.sidebar.number_input("Tempo Atracado (em horas)", min_value=0.0, step=0.1),
+    "input5": st.sidebar.number_input("Consumo de HFO (em gramas)", min_value=0.0, step=0.1),
+    "input6": st.sidebar.number_input("Consumo de MGO/MDO (em gramas)", min_value=0.0, step=0.1),
+}
 
-# Entrada manual de dados
-st.header("Inserir Dados Manualmente")
-with st.form("manual_entry"):
-    num_entrada = st.text_input("Número de Entrada")
-    navio = st.text_input("Nome do Navio")
-    carga = st.selectbox("Tipo de Carga", ["GRANEL LÍQUIDO", "GRANEL SÓLIDO", "CARGA GERAL"])
-    tempo_atracado = st.number_input("Tempo Atracado (em horas)", min_value=0.0)
-    consumo_hfo = st.number_input("Consumo de HFO (em gramas)", min_value=0.0)
-    consumo_mgo = st.number_input("Consumo de MGO/MDO (em gramas)", min_value=0.0)
-    
-    submitted = st.form_submit_button("Adicionar Entrada")
-    if submitted:
-        # Adicionar os dados ao DataFrame
-        new_entry = {
-            "Nº ENTRADA": num_entrada,
-            "NAVIO": navio,
-            "CARGA": carga,
-            "TEMPO ATRACADO (h)": tempo_atracado,
-            "CONSUMO HFO (g)": consumo_hfo,
-            "CONSUMO MGO/MDO (g)": consumo_mgo,
-            "EMISSÕES (t)": (consumo_hfo + consumo_mgo) / 1_000_000  # Exemplo de cálculo
-        }
-        df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
-        st.success("Entrada adicionada com sucesso!")
+# Botão para adicionar entradas
+st.sidebar.header("Adicionar Entrada")
+add_entry = st.sidebar.button("Adicionar aos Dados")
 
-# Exibir os dados
-st.header("Dados Atuais")
-st.dataframe(df)
+# Dados para armazenar entradas
+if "data" not in st.session_state:
+    st.session_state["data"] = pd.DataFrame(columns=["Nº Entrada", "Navio", "Tipo de Carga", 
+                                                     "Tempo Atracado (h)", "Consumo HFO (g)", 
+                                                     "Consumo MGO/MDO (g)", "Cal1", "Cal2", "Cal3"])
 
-# Cálculo de emissões
-if not df.empty:
-    st.header("Cálculo de Emissões")
-    if st.button("Calcular"):
-        df["EMISSÕES (t)"] = (df["CONSUMO HFO (g)"] + df["CONSUMO MGO/MDO (g)"]) / 1_000_000
-        st.write("Resultados Atualizados:")
-        st.dataframe(df)
+# Adicionando entradas aos dados
+if add_entry:
+    new_data = {
+        "Nº Entrada": inputs["input1"],
+        "Navio": inputs["input2"],
+        "Tipo de Carga": inputs["input3"],
+        "Tempo Atracado (h)": inputs["input4"],
+        "Consumo HFO (g)": inputs["input5"],
+        "Consumo MGO/MDO (g)": inputs["input6"],
+        "Cal1": inputs["input4"] * 0.5,  # Exemplo fictício para Cal1
+        "Cal2": inputs["input5"] / 1_000_000,  # Exemplo fictício para Cal2
+        "Cal3": inputs["input6"] / 1_000_000,  # Exemplo fictício para Cal3
+    }
+    st.session_state["data"] = pd.concat([st.session_state["data"], pd.DataFrame([new_data])], ignore_index=True)
+    st.success("Entrada adicionada com sucesso!")
 
-# Opção para exportar os resultados
-if not df.empty:
-    st.header("Exportar Resultados")
-    if st.button("Exportar para Excel"):
-        df.to_excel("resultados_calculados.xlsx", index=False)
-        st.success("Arquivo exportado!")
+# Mostrar os dados atuais
+st.header("Dados Inseridos")
+st.dataframe(st.session_state["data"])
+
+# Cálculos de emissões
+if not st.session_state["data"].empty:
+    st.header("Cálculos de Emissões")
+    st.write("Resultados Calculados com base no modelo:")
+    st.dataframe(st.session_state["data"])
+
+# Exportar dados calculados
+st.header("Exportar Resultados")
+if st.button("Exportar para Excel"):
+    st.session_state["data"].to_excel("resultados_calculados.xlsx", index=False)
+    st.success("Arquivo exportado com sucesso!")
+
+
+
