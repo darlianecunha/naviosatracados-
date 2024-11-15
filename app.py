@@ -16,6 +16,19 @@ categoria = st.selectbox("Categoria", ["Granel Líquido", "Granel Sólido", "Car
 data_atracacao = st.text_input("Data de Atracação (dd/mm/yyyy HH:MM)")
 data_desatracacao = st.text_input("Data de Desatracação (dd/mm/yyyy HH:MM)")
 
+# Cálculo do P. Motor Auxiliar (kW)
+if categoria:
+    if categoria == "Granel Líquido":
+        p_motor_aux = 200  # Exemplo fictício
+    elif categoria == "Granel Sólido":
+        p_motor_aux = 150  # Exemplo fictício
+    elif categoria == "Carga Geral":
+        p_motor_aux = 100  # Exemplo fictício
+    elif categoria == "Container":
+        p_motor_aux = 250  # Exemplo fictício
+else:
+    p_motor_aux = 0
+
 # Validação de datas e cálculos
 if codigo_entrada and dtw > 0 and categoria and data_atracacao and data_desatracacao:
     try:
@@ -26,7 +39,7 @@ if codigo_entrada and dtw > 0 and categoria and data_atracacao and data_desatrac
         # Cálculos
         tempo_atracacao = desatracacao - atracacao  # Tempo total atracado
         horas_atracacao = tempo_atracacao.total_seconds() / 3600  # Conversão para horas
-        energia_consumida = horas_atracacao * 150  # Exemplo fictício: 150 kWh por hora
+        energia_consumida = horas_atracacao * p_motor_aux  # Energia consumida com base no motor auxiliar
         mgo_g = dtw * horas_atracacao * 10  # Consumo de MGO em gramas (exemplo fictício)
         mgo_t = mgo_g / 1_000_000  # Conversão para toneladas
         co2_g = mgo_g * 3.2  # Emissão de CO2 em gramas (exemplo fictício)
@@ -37,26 +50,23 @@ if codigo_entrada and dtw > 0 and categoria and data_atracacao and data_desatrac
 
         # Resultados
         st.header("Resultados")
-        resultados = {
-            "Código de Entrada": codigo_entrada,
-            "DTW (Deadweight Tonnage)": dtw,
-            "Categoria": categoria,
-            "Tempo de Atracação": str(tempo_atracacao),
-            "Horas de Atracação": horas_atracacao,
-            "Energia Consumida (kWh)": energia_consumida,
-            "MGO Consumido (g)": mgo_g,
-            "MGO Consumido (t)": mgo_t,
-            "CO2 Liberado (g)": co2_g,
-            "CO2 Liberado (t)": co2_t,
-            "Crédito de Carbono": credito_carbono,
-            "Compra de MGO/MDO (USD)": compra_mgo,
-            "Custo de Energia Elétrica (USD)": energia_eletrica,
-        }
-        
-        # Exibição dos resultados em tabela
-        st.write(pd.DataFrame([resultados]))
+        st.write(f"**Código de Entrada:** {codigo_entrada}")
+        st.write(f"**DTW (Deadweight Tonnage):** {dtw}")
+        st.write(f"**Categoria:** {categoria}")
+        st.write(f"**P. Motor Auxiliar (kW):** {p_motor_aux}")
+        st.write(f"**Tempo de Atracação:** {tempo_atracacao}")
+        st.write(f"**Horas de Atracação:** {horas_atracacao:.2f}")
+        st.write(f"**Energia Consumida (kWh):** {energia_consumida:.2f}")
+        st.write(f"**MGO Consumido (g):** {mgo_g:.2f}")
+        st.write(f"**MGO Consumido (t):** {mgo_t:.2f}")
+        st.write(f"**CO2 Liberado (g):** {co2_g:.2f}")
+        st.write(f"**CO2 Liberado (t):** {co2_t:.2f}")
+        st.write(f"**Crédito de Carbono:** {credito_carbono:.2f}")
+        st.write(f"**Compra de MGO/MDO (USD):** {compra_mgo:.2f}")
+        st.write(f"**Custo de Energia Elétrica (USD):** {energia_eletrica:.2f}")
     
     except ValueError:
         st.error("Por favor, insira as datas no formato correto: dd/mm/yyyy HH:MM.")
 else:
     st.write("Preencha todas as informações para calcular os resultados.")
+
