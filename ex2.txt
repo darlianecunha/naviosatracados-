@@ -1,1 +1,0 @@
-streamlit run nome_do_arquivo.py
