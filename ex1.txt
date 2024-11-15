@@ -1,1 +1,1 @@
-streamlit run nome_do_arquivo.py
+streamlit run calculadora_emissoes.py
