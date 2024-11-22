@@ -70,3 +70,8 @@ if codigo_entrada and dtw > 0 and categoria and data_atracacao and data_desatrac
 else:
     st.write("Preencha todas as informações para calcular os resultados.")
 
+ # Adicionar a fonte e o crédito ao final da aplicação
+st.markdown("<p><strong>Ferramenta desenvolvida por Darliane Cunha.</strong></p>", unsafe_allow_html=True)
+
+    
+
