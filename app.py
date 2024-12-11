@@ -1,17 +1,18 @@
 import streamlit as st
 from datetime import datetime, timedelta
 
-# Configurar o tamanho do texto
+# Configurar o estilo do texto
 st.markdown("""
 <style>
 .big-font {
     font-size:20px !important;
+    color: #006400 !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Título do app
-st.markdown('<p class="big-font">Calculadora de Emissões Portuárias</p>', unsafe_allow_html=True)
+# Título do app com ícone de navio
+st.markdown('<p class="big-font">🚢 Calculadora de Emissões Portuárias</p>', unsafe_allow_html=True)
 
 # Explicação inicial
 st.markdown('<p class="big-font">Preencha os campos abaixo para calcular os resultados de emissões portuárias automaticamente.</p>', unsafe_allow_html=True)
@@ -79,28 +80,4 @@ with abas[0]:
 with abas[1]:
     st.header("Simulação de Dias de Atracação")
 
-    dias_simulados = st.number_input("Alterar dias de atracação:", min_value=-10, max_value=10, step=1)
-
-    if codigo_entrada and dtw > 0 and categoria and data_atracacao:
-        try:
-            atracacao = datetime.strptime(data_atracacao, "%d/%m/%Y %H:%M")
-            desatracacao_simulada = atracacao + timedelta(days=dias_simulados)
-            
-            # Cálculo do tempo de atracação em horas (simulado)
-            tempo_atracacao_simulado = desatracacao_simulada - atracacao
-            horas_atracacao_simulado = tempo_atracacao_simulado.total_seconds() / 3600
-
-            # Cálculos simulados
-            energia_consumida_sim = horas_atracacao_simulado * p_motor_aux
-            mgo_consumido_sim = dtw * horas_atracacao_simulado * 10 / 1_000_000
-            co2_liberado_sim = mgo_consumido_sim * 3.2
-
-            st.markdown(f'<p class="big-font"><strong>Horas de Atracação Simuladas:</strong> {horas_atracacao_simulado:.2f}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="big-font"><strong>Energia Consumida Simulada (kWh):</strong> {energia_consumida_sim:.2f}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="big-font"><strong>MGO Consumido Simulado (t):</strong> {mgo_consumido_sim:.2f}</p>', unsafe_allow_html=True)
-            st.markdown(f'<p class="big-font"><strong>CO2 Liberado Simulado (t):</strong> {co2_liberado_sim:.2f}</p>', unsafe_allow_html=True)
-
-        except ValueError:
-            st.error("Por favor, insira a data de atracação no formato correto: dd/mm/yyyy HH:MM.")
-    else:
-        st.write("Preencha os dados necessários na aba anterior para simular.")
+    dias_simulados = st.number_input("Alterar dias de atracação:", min_value=
